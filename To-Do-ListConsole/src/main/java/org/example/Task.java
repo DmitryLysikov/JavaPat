@@ -1,7 +1,7 @@
 package org.example;
 
 import java.time.LocalDate;
-
+//паттерн Prototype
 public class Task {
     private static int idCounter = 0;
     private int id;
@@ -18,6 +18,14 @@ public class Task {
         this.description = description;
         this.priority = priority;
         this.status = status;
+    }
+
+    public Task(Task that) {
+        this(that.title, that.description, that.priority, that.status, that.dueDate);
+    }
+
+    public Task copy() {
+        return new Task(this);
     }
 
     public String getTitle() {
@@ -70,7 +78,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return String.format("ID: %d, Title: %s, Due: %s, Priority: %d, Status: %b",
-                id, title, dueDate, priority, status);
+        return String.format("ID: %d, Title: %s, Des: %s ,Due: %s, Priority: %d, Status: %b",
+                id, title, description ,dueDate, priority, status);
     }
 }
