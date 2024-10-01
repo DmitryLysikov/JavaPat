@@ -39,7 +39,7 @@ public class Main {
     }
 
     private static void addTask() {
-        scanner.nextLine(); // очищаем буфер после ввода числа
+        scanner.nextLine();
         out.print("Введите заголовок задачи: ");
         String title = scanner.nextLine();
 
@@ -51,7 +51,13 @@ public class Main {
         out.print("Введите приоритет задачи (1-5): ");
         int priority = getValidatedPriority();
 
-        Task task = new Task(title, description, priority, false, dueDate);
+        Task task = new Task.TaskBuilder()
+                .setTitle(title)
+                .setDescription(description)
+                .setPriority(priority)
+                .setDueDate(dueDate)
+                .build();
+
         taskmanger.addTask(task);
         out.println("Задача добавлена!");
     }
@@ -116,15 +122,15 @@ public class Main {
         }
     }
 
-    private static void copyTask(){
+    private static void copyTask() {
         out.print("Введите ID задачи для копирования: ");
         int taskId = scanner.nextInt();
         Task task = taskmanger.getTaskById(taskId);
-        if(task != null){
+        if (task != null) {
             Task clone = task.copy();
             taskmanger.addTask(clone);
             out.println("Задача клонирована: " + clone);
-        }else {
+        } else {
             out.println("Задача с таким ID не найдена.");
         }
     }

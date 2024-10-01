@@ -1,31 +1,75 @@
 package org.example;
 
 import java.time.LocalDate;
-//паттерн Prototype
+
+//паттерны Prototype and Builder
 public class Task {
     private static int idCounter = 0;
-    private int id;
+    private final int id;
     private String title;
     private String description;
     private int priority;
     private boolean status;
     private LocalDate dueDate;
 
-    public Task(String title, String description, int priority, boolean status, LocalDate dueDate) {
-        this.dueDate = dueDate;
+    private Task(TaskBuilder builder) {
         this.id = ++idCounter;
-        this.title = title;
-        this.description = description;
-        this.priority = priority;
-        this.status = status;
-    }
-
-    public Task(Task that) {
-        this(that.title, that.description, that.priority, that.status, that.dueDate);
+        this.title = builder.title;
+        this.description = builder.description;
+        this.priority = builder.priority;
+        this.status = builder.status;
+        this.dueDate = builder.dueDate;
     }
 
     public Task copy() {
-        return new Task(this);
+        return new Task.TaskBuilder()
+                .setTitle(this.title)
+                .setDescription(this.description)
+                .setPriority(this.priority)
+                .setStatus(this.status)
+                .setDueDate(this.dueDate)
+                .build();
+    }
+
+    public static class TaskBuilder {
+        private String title;
+        private String description;
+        private int priority = 3;
+        private boolean status = false;
+        private LocalDate dueDate;
+
+        public TaskBuilder setTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public TaskBuilder setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public TaskBuilder setPriority(int priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        public TaskBuilder setStatus(boolean status) {
+            this.status = status;
+            return this;
+        }
+
+        public TaskBuilder setDueDate(LocalDate dueDate) {
+            this.dueDate = dueDate;
+            return this;
+        }
+
+        public Task build() {
+            return new Task(this);
+        }
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getTitle() {
@@ -60,14 +104,6 @@ public class Task {
         this.status = status;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public LocalDate getDueDate() {
         return dueDate;
     }
@@ -79,6 +115,6 @@ public class Task {
     @Override
     public String toString() {
         return String.format("ID: %d, Title: %s, Des: %s ,Due: %s, Priority: %d, Status: %b",
-                id, title, description ,dueDate, priority, status);
+                id, title, description, dueDate, priority, status);
     }
 }
