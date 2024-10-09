@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//Паттерн Singleton and Abstract factory
+//Паттерн Singleton
 public class Taskmanger {
     private static final Taskmanger instance = new Taskmanger();
 

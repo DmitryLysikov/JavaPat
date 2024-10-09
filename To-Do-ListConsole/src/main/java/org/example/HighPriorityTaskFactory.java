@@ -1,7 +1,7 @@
 package org.example;
 
 import java.time.LocalDate;
-
+//Abstract factory
 public class HighPriorityTaskFactory implements TaskFactory {
     @Override
     public Task createTask(String title, String description, LocalDate dueDate) {
