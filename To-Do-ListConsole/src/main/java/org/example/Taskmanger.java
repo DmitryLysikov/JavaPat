@@ -1,11 +1,12 @@
 package org.example;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//Паттерн Singleton
+//Паттерн Singleton and Abstract factory
 public class Taskmanger {
     private static final Taskmanger instance = new Taskmanger();
 
@@ -38,6 +39,11 @@ public class Taskmanger {
                 .filter(task -> task.getId() == id)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void addTaskFromFactory(TaskFactory factory, String title, String description, LocalDate dueDate) {
+        Task task = factory.createTask(title, description, dueDate);
+        addTask(task);
     }
 
     public List<Task> getTasksByPriority() {

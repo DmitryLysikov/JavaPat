@@ -39,27 +39,91 @@ public class Main {
     }
 
     private static void addTask() {
-        scanner.nextLine();
-        out.print("Введите заголовок задачи: ");
-        String title = scanner.nextLine();
+        scanner.nextLine(); // очищаем сканер
 
-        out.print("Введите описание задачи: ");
-        String description = scanner.nextLine();
+        // Выбор типа задачи
+        out.println("Выберите тип задачи:");
+        out.println("1. Обычная задача");
+        out.println("2. Задача с высоким приоритетом");
+        int taskType = scanner.nextInt();
 
-        LocalDate dueDate = getDueDateFromUser();
+        scanner.nextLine(); // очищаем сканер после ввода числа
 
-        out.print("Введите приоритет задачи (1-5): ");
-        int priority = getValidatedPriority();
+        TaskFactory taskFactory;
+        switch (taskType) {
+            case 1 -> {
+                out.print("Введите заголовок задачи: ");
+                String title = scanner.nextLine();
 
-        Task task = new Task.TaskBuilder()
-                .setTitle(title)
-                .setDescription(description)
-                .setPriority(priority)
-                .setDueDate(dueDate)
-                .build();
 
-        taskmanger.addTask(task);
-        out.println("Задача добавлена!");
+                out.print("Введите описание задачи: ");
+                String description = scanner.nextLine();
+
+                LocalDate dueDate = getDueDateFromUser();
+
+                out.print("Введите приоритет задачи (1-5): ");
+                int priority = getValidatedPriority();
+
+                Task task = new Task.TaskBuilder()
+                        .setTitle(title)
+                        .setDescription(description)
+                        .setPriority(priority)
+                        .setDueDate(dueDate)
+                        .build();
+
+                taskmanger.addTask(task);
+            }
+            case 2 -> {
+                out.print("Введите заголовок задачи: ");
+                String title = scanner.nextLine();
+
+
+                out.print("Введите описание задачи: ");
+                String description = scanner.nextLine();
+
+                LocalDate dueDate = getDueDateFromUser();
+
+                taskFactory = new HighPriorityTaskFactory();
+                taskmanger.addTaskFromFactory(taskFactory, title, description, dueDate);
+            }
+            default -> {
+                out.println("Неверный выбор. Создается обычная задача.");
+                out.print("Введите заголовок задачи: ");
+                String title = scanner.nextLine();
+
+
+                out.print("Введите описание задачи: ");
+                String description = scanner.nextLine();
+
+                LocalDate dueDate = getDueDateFromUser();
+
+                out.print("Введите приоритет задачи (1-5): ");
+                int priority = getValidatedPriority();
+
+                Task task = new Task.TaskBuilder()
+                        .setTitle(title)
+                        .setDescription(description)
+                        .setPriority(priority)
+                        .setDueDate(dueDate)
+                        .build();
+
+                taskmanger.addTask(task);
+            }
+        }
+
+        out.println("Задача добавлена");
+    }
+
+    private static int getValidatedPriority() {
+        int priority = -1;
+        while (priority < 1 || priority > 5) {
+            while (!scanner.hasNextInt()) {
+                out.print("Введите приоритет от 1 до 5: ");
+                scanner.next();
+            }
+            priority = scanner.nextInt();
+        }
+        return priority;
     }
 
     private static LocalDate getDueDateFromUser() {
@@ -74,18 +138,6 @@ public class Main {
             }
         }
         return dueDate;
-    }
-
-    private static int getValidatedPriority() {
-        int priority = -1;
-        while (priority < 1 || priority > 5) {
-            while (!scanner.hasNextInt()) {
-                out.print("Введите приоритет от 1 до 5: ");
-                scanner.next();
-            }
-            priority = scanner.nextInt();
-        }
-        return priority;
     }
 
     private static void showTasks() {
