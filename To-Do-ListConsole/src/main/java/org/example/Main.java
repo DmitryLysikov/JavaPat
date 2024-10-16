@@ -49,7 +49,7 @@ public class Main {
 
         scanner.nextLine(); // очищаем сканер после ввода числа
 
-        TaskFactory taskFactory;
+        TaskAbstraction taskAbstraction;
         switch (taskType) {
             case 1 -> {
                 out.print("Введите заголовок задачи: ");
@@ -74,17 +74,18 @@ public class Main {
                 taskmanger.addTask(task);
             }
             case 2 -> {
-                out.print("Введите заголовок задачи: ");
-                String title = scanner.nextLine();
+                taskAbstraction = new HighPriorityTask(new HighPriorityTaskImplementor());
+                out.print("Введите приоритет задачи (1-5): ");
+                int priority = getValidatedPriority();
+                taskAbstraction.setPriority(priority);
 
+                scanner.nextLine();
 
-                out.print("Введите описание задачи: ");
-                String description = scanner.nextLine();
+                out.print("Введите срок выполнения задачи (гггг-мм-дд): ");
+                String dueDate = scanner.nextLine();
+                taskAbstraction.setDueDate(dueDate);
 
-                LocalDate dueDate = getDueDateFromUser();
-
-                taskFactory = new HighPriorityTaskFactory();
-                taskmanger.addTaskFromFactory(taskFactory, title, description, dueDate);
+                taskAbstraction.showInfo();
             }
             default -> {
                 out.println("Неверный выбор. Создается обычная задача.");
