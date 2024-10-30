@@ -3,6 +3,7 @@ package org.example;
 import java.time.LocalDate;
 import java.util.List;
 
+//Facade
 public class TaskManagerFacade {
     private final Taskmanger taskManager = Taskmanger.getInstance();
 
