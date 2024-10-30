@@ -2,13 +2,12 @@ package org.example;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 import java.util.Scanner;
 
 import static java.lang.System.*;
 
 public class Main {
-    private static final Taskmanger taskManager = Taskmanger.getInstance();
+    private static final TaskManagerFacade taskManagerFacade = new TaskManagerFacade();
     private static final Scanner scanner = new Scanner(in);
 
     public static void main(String[] args) {
@@ -19,19 +18,17 @@ public class Main {
             out.println("3. Отметить задачу как выполненную");
             out.println("4. Удалить задачу");
             out.println("5. Копировать задачу");
-            out.println("6. Добавить составную задачу");
-            out.println("7. Выход");
+            out.println("6. Выход");
             out.print("Выберите пункт: ");
 
             int choice = scanner.nextInt();
             switch (choice) {
                 case 1 -> addTask();
-                case 2 -> showTasks();
+                case 2 -> taskManagerFacade.showAllTasks();
                 case 3 -> markTaskAsCompleted();
                 case 4 -> deleteTask();
                 case 5 -> copyTask();
-                case 6 -> addCompositeTask();
-                case 7 -> {
+                case 6 -> {
                     out.println("Выход");
                     return;
                 }
@@ -41,17 +38,15 @@ public class Main {
     }
 
     private static void addTask() {
-        scanner.nextLine(); // очищаем сканер
+        scanner.nextLine();
 
-        // Выбор типа задачи
         out.println("Выберите тип задачи:");
         out.println("1. Обычная задача");
         out.println("2. Задача с высоким приоритетом");
         int taskType = scanner.nextInt();
 
-        scanner.nextLine(); // очищаем сканер после ввода числа
+        scanner.nextLine();
 
-        TaskAbstraction taskAbstraction;
         switch (taskType) {
             case 1 -> {
                 out.print("Введите заголовок задачи: ");
@@ -65,31 +60,9 @@ public class Main {
                 out.print("Введите приоритет задачи (1-5): ");
                 int priority = getValidatedPriority();
 
-                Task task = new Task.TaskBuilder()
-                        .setTitle(title)
-                        .setDescription(description)
-                        .setPriority(priority)
-                        .setDueDate(dueDate)
-                        .build();
-
-                taskManager.addTask(new TaskLeaf(task));
+                taskManagerFacade.addTask(title, description, priority, dueDate);
             }
             case 2 -> {
-                taskAbstraction = new HighPriorityTask(new HighPriorityTaskImplementor());
-                out.print("Введите приоритет задачи (1-5): ");
-                int priority = getValidatedPriority();
-                taskAbstraction.setPriority(priority);
-
-                scanner.nextLine();
-
-                out.print("Введите срок выполнения задачи (гггг-мм-дд): ");
-                String dueDate = scanner.nextLine();
-                taskAbstraction.setDueDate(dueDate);
-
-                taskAbstraction.showInfo();
-            }
-            default -> {
-                out.println("Неверный выбор. Создается обычная задача.");
                 out.print("Введите заголовок задачи: ");
                 String title = scanner.nextLine();
 
@@ -98,64 +71,10 @@ public class Main {
 
                 LocalDate dueDate = getDueDateFromUser();
 
-                out.print("Введите приоритет задачи (1-5): ");
-                int priority = getValidatedPriority();
-
-                Task task = new Task.TaskBuilder()
-                        .setTitle(title)
-                        .setDescription(description)
-                        .setPriority(priority)
-                        .setDueDate(dueDate)
-                        .build();
-
-                taskManager.addTask(new TaskLeaf(task));
+                taskManagerFacade.addHighPriorityTask(title, description, dueDate);
             }
+            default -> out.println("Неверный выбор.");
         }
-
-        out.println("Задача добавлена");
-    }
-
-    private static void addCompositeTask() {
-        scanner.nextLine(); // очищаем сканер
-
-        out.print("Введите название составной задачи: ");
-        String title = scanner.nextLine();
-        TaskComposite compositeTask = taskManager.createCompositeTask(title);
-
-        // Добавление подзадач в составную задачу
-        out.println("Добавьте задачи в составную задачу.");
-        boolean addingTasks = true;
-        while (addingTasks) {
-            Task task = createSimpleTask();
-            TaskLeaf taskLeaf = new TaskLeaf(task);
-            compositeTask.add(taskLeaf);
-
-            scanner.nextLine();
-
-            out.println("Добавить ещё одну задачу? (y/n): ");
-            String answer = scanner.nextLine();
-            addingTasks = answer.equalsIgnoreCase("y");
-        }
-
-        taskManager.addTask(compositeTask);
-        out.println("Составная задача добавлена.");
-    }
-
-    private static Task createSimpleTask() {
-        out.print("Введите заголовок задачи: ");
-        String title = scanner.nextLine();
-        out.print("Введите описание задачи: ");
-        String description = scanner.nextLine();
-        LocalDate dueDate = getDueDateFromUser();
-        out.print("Введите приоритет задачи (1-5): ");
-        int priority = getValidatedPriority();
-
-        return new Task.TaskBuilder()
-                .setTitle(title)
-                .setDescription(description)
-                .setPriority(priority)
-                .setDueDate(dueDate)
-                .build();
     }
 
     private static int getValidatedPriority() {
@@ -184,50 +103,21 @@ public class Main {
         return dueDate;
     }
 
-    private static void showTasks() {
-        List<TaskComponent> tasks = taskManager.getTasks();
-        if (tasks.isEmpty()) {
-            out.println("Нет задач.");
-        } else {
-            out.println("Список задач:");
-            tasks.forEach(TaskComponent::showTaskDetails);
-        }
-    }
-
     private static void markTaskAsCompleted() {
         out.print("Введите ID задачи для завершения: ");
         int taskId = scanner.nextInt();
-        Task task = taskManager.getTaskById(taskId);
-        if (task != null) {
-            taskManager.isCompleted(taskId);
-            out.println("Задача отмечена как выполненная.");
-        } else {
-            out.println("Задача с таким ID не найдена.");
-        }
+        taskManagerFacade.markTaskAsCompleted(taskId);
     }
 
     private static void deleteTask() {
         out.print("Введите ID задачи для удаления: ");
         int taskId = scanner.nextInt();
-        Task task = taskManager.getTaskById(taskId);
-        if (task != null) {
-            taskManager.removeTask(taskId);
-            out.println("Задача удалена.");
-        } else {
-            out.println("Задача с таким ID не найдена.");
-        }
+        taskManagerFacade.deleteTask(taskId);
     }
 
     private static void copyTask() {
         out.print("Введите ID задачи для копирования: ");
         int taskId = scanner.nextInt();
-        Task task = taskManager.getTaskById(taskId);
-        if (task != null) {
-            Task clone = task.copy();
-            taskManager.addTask(clone);
-            out.println("Задача клонирована: " + clone);
-        } else {
-            out.println("Задача с таким ID не найдена.");
-        }
+        taskManagerFacade.copyTask(taskId);
     }
 }
