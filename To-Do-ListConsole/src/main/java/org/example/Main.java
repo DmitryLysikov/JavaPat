@@ -2,15 +2,17 @@ package org.example;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Scanner;
 
 import static java.lang.System.*;
 
 public class Main {
-    private static final TaskManagerFacade taskManagerFacade = new TaskManagerFacade();
+    private static TaskManagerInterface taskManager;
     private static final Scanner scanner = new Scanner(in);
 
     public static void main(String[] args) {
+        taskManager = new TaskManagerProxy(false);
         while (true) {
             out.println("\nМеню:");
             out.println("1. Добавить задачу");
@@ -24,7 +26,7 @@ public class Main {
             int choice = scanner.nextInt();
             switch (choice) {
                 case 1 -> addTask();
-                case 2 -> taskManagerFacade.showAllTasks();
+                case 2 -> showTasks();
                 case 3 -> markTaskAsCompleted();
                 case 4 -> deleteTask();
                 case 5 -> copyTask();
@@ -39,54 +41,26 @@ public class Main {
 
     private static void addTask() {
         scanner.nextLine();
+        out.print("Введите заголовок задачи: ");
+        String title = scanner.nextLine();
 
-        out.println("Выберите тип задачи:");
-        out.println("1. Обычная задача");
-        out.println("2. Задача с высоким приоритетом");
-        int taskType = scanner.nextInt();
+        out.print("Введите описание задачи: ");
+        String description = scanner.nextLine();
 
-        scanner.nextLine();
+        LocalDate dueDate = getDueDateFromUser();
 
-        switch (taskType) {
-            case 1 -> {
-                out.print("Введите заголовок задачи: ");
-                String title = scanner.nextLine();
+        out.print("Введите приоритет задачи (1-5): ");
+        int priority = getValidatedPriority();
 
-                out.print("Введите описание задачи: ");
-                String description = scanner.nextLine();
+        Task task = new Task.TaskBuilder()
+                .setTitle(title)
+                .setDescription(description)
+                .setPriority(priority)
+                .setDueDate(dueDate)
+                .build();
 
-                LocalDate dueDate = getDueDateFromUser();
-
-                out.print("Введите приоритет задачи (1-5): ");
-                int priority = getValidatedPriority();
-
-                taskManagerFacade.addTask(title, description, priority, dueDate);
-            }
-            case 2 -> {
-                out.print("Введите заголовок задачи: ");
-                String title = scanner.nextLine();
-
-                out.print("Введите описание задачи: ");
-                String description = scanner.nextLine();
-
-                LocalDate dueDate = getDueDateFromUser();
-
-                taskManagerFacade.addHighPriorityTask(title, description, dueDate);
-            }
-            default -> out.println("Неверный выбор.");
-        }
-    }
-
-    private static int getValidatedPriority() {
-        int priority = -1;
-        while (priority < 1 || priority > 5) {
-            while (!scanner.hasNextInt()) {
-                out.print("Введите приоритет от 1 до 5: ");
-                scanner.next();
-            }
-            priority = scanner.nextInt();
-        }
-        return priority;
+        taskManager.addTask(task);
+        out.println("Задача добавлена!");
     }
 
     private static LocalDate getDueDateFromUser() {
@@ -103,21 +77,61 @@ public class Main {
         return dueDate;
     }
 
+    private static int getValidatedPriority() {
+        int priority = -1;
+        while (priority < 1 || priority > 5) {
+            while (!scanner.hasNextInt()) {
+                out.print("Введите приоритет от 1 до 5: ");
+                scanner.next();
+            }
+            priority = scanner.nextInt();
+        }
+        return priority;
+    }
+
+    private static void showTasks() {
+        List<Task> tasks = taskManager.getTasksByPriority();
+        if (tasks.isEmpty()) {
+            out.println("Нет задач.");
+        } else {
+            out.println("Список задач:");
+            tasks.forEach(out::println);
+        }
+    }
+
     private static void markTaskAsCompleted() {
         out.print("Введите ID задачи для завершения: ");
         int taskId = scanner.nextInt();
-        taskManagerFacade.markTaskAsCompleted(taskId);
+        Task task = taskManager.getTaskById(taskId);
+        if (task != null) {
+            taskManager.isCompleted(taskId);
+            out.println("Задача отмечена как выполненная.");
+        } else {
+            out.println("Задача с таким ID не найдена.");
+        }
     }
 
     private static void deleteTask() {
         out.print("Введите ID задачи для удаления: ");
         int taskId = scanner.nextInt();
-        taskManagerFacade.deleteTask(taskId);
+        Task task = taskManager.getTaskById(taskId);
+        if (task != null) {
+            taskManager.removeTask(taskId);
+        } else {
+            out.println("Задача с таким ID не найдена.");
+        }
     }
 
     private static void copyTask() {
         out.print("Введите ID задачи для копирования: ");
         int taskId = scanner.nextInt();
-        taskManagerFacade.copyTask(taskId);
+        Task task = taskManager.getTaskById(taskId);
+        if (task != null) {
+            Task clone = task.copy();
+            taskManager.addTask(clone);
+            out.println("Задача клонирована: " + clone);
+        } else {
+            out.println("Задача с таким ID не найдена.");
+        }
     }
 }
