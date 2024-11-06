@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import static java.lang.System.*;
 
+//Chain of Responsibility
 public class Main {
     private static TaskManagerInterface taskManager;
     private static final Scanner scanner = new Scanner(in);
@@ -58,6 +59,15 @@ public class Main {
                 .setPriority(priority)
                 .setDueDate(dueDate)
                 .build();
+
+        TaskHandler validationHandler = new TaskValidationHandler();
+        TaskHandler priorityHandler = new TaskPriorityHandler();
+        TaskHandler completionStatusHandler = new TaskCompletionStatusHandler();
+
+        validationHandler.setNextHandler(priorityHandler);
+        priorityHandler.setNextHandler(completionStatusHandler);
+
+        validationHandler.handle(task);
 
         taskManager.addTask(task);
         out.println("Задача добавлена!");
