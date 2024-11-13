@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 import static java.lang.System.*;
 
-//Chain of Responsibility
 public class Main {
     private static TaskManagerInterface taskManager;
     private static final Scanner scanner = new Scanner(in);
@@ -49,7 +48,6 @@ public class Main {
         String description = scanner.nextLine();
 
         LocalDate dueDate = getDueDateFromUser();
-
         out.print("Введите приоритет задачи (1-5): ");
         int priority = getValidatedPriority();
 
@@ -60,17 +58,8 @@ public class Main {
                 .setDueDate(dueDate)
                 .build();
 
-        TaskHandler validationHandler = new TaskValidationHandler();
-        TaskHandler priorityHandler = new TaskPriorityHandler();
-        TaskHandler completionStatusHandler = new TaskCompletionStatusHandler();
-
-        validationHandler.setNextHandler(priorityHandler);
-        priorityHandler.setNextHandler(completionStatusHandler);
-
-        validationHandler.handle(task);
-
-        taskManager.addTask(task);
-        out.println("Задача добавлена!");
+        Command addTaskCommand = new AddTaskCommand(taskManager, task);
+        addTaskCommand.execute();
     }
 
     private static LocalDate getDueDateFromUser() {
@@ -112,24 +101,15 @@ public class Main {
     private static void markTaskAsCompleted() {
         out.print("Введите ID задачи для завершения: ");
         int taskId = scanner.nextInt();
-        Task task = taskManager.getTaskById(taskId);
-        if (task != null) {
-            taskManager.isCompleted(taskId);
-            out.println("Задача отмечена как выполненная.");
-        } else {
-            out.println("Задача с таким ID не найдена.");
-        }
+        Command markTaskAsCompletedCommand = new MarkTaskAsCompletedCommand(taskManager, taskId);
+        markTaskAsCompletedCommand.execute();
     }
 
     private static void deleteTask() {
         out.print("Введите ID задачи для удаления: ");
         int taskId = scanner.nextInt();
-        Task task = taskManager.getTaskById(taskId);
-        if (task != null) {
-            taskManager.removeTask(taskId);
-        } else {
-            out.println("Задача с таким ID не найдена.");
-        }
+        Command deleteTaskCommand = new DeleteTaskCommand(taskManager, taskId);
+        deleteTaskCommand.execute();
     }
 
     private static void copyTask() {
