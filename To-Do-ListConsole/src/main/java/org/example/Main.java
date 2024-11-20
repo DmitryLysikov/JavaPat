@@ -21,6 +21,7 @@ public class Main {
             out.println("4. Удалить задачу");
             out.println("5. Копировать задачу");
             out.println("6. Выход");
+            out.println("7. Итерация по задачам");
             out.print("Выберите пункт: ");
 
             int choice = scanner.nextInt();
@@ -34,6 +35,7 @@ public class Main {
                     out.println("Выход");
                     return;
                 }
+                case 7 -> iterateTasks();
                 default -> out.println("Неверный выбор!");
             }
         }
@@ -122,6 +124,17 @@ public class Main {
             out.println("Задача клонирована: " + clone);
         } else {
             out.println("Задача с таким ID не найдена.");
+        }
+    }
+    private static void iterateTasks() {
+        TaskIterator iterator = taskManager.getIterator();
+        if (!iterator.hasNext()) {
+            out.println("Нет задач для отображения.");
+            return;
+        }
+        out.println("Задачи:");
+        while (iterator.hasNext()) {
+            out.println(iterator.next());
         }
     }
 }

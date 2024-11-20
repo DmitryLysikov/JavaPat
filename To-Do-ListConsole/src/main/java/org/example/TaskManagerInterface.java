@@ -9,4 +9,5 @@ public interface TaskManagerInterface {
     List<Task> getAllTasks();
     Task getTaskById(int id);
     List<Task> getTasksByPriority();
+    TaskIterator getIterator();
 }

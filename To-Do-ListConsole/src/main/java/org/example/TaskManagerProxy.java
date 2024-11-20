@@ -45,4 +45,9 @@ public class TaskManagerProxy implements TaskManagerInterface {
     public List<Task> getTasksByPriority() {
         return taskManager.getTasksByPriority();
     }
+
+    @Override
+    public TaskIterator getIterator() {
+        return new TaskListIterator(getAllTasks());
+    }
 }

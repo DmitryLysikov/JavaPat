@@ -52,4 +52,9 @@ public class Taskmanger implements TaskManagerInterface {
                 .sorted(Comparator.comparing(Task::getPriority))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public TaskIterator getIterator() {
+        return new TaskListIterator(getAllTasks());
+    }
 }
