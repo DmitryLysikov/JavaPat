@@ -10,6 +10,7 @@ import static java.lang.System.*;
 public class Main {
     private static TaskManagerInterface taskManager;
     private static final Scanner scanner = new Scanner(in);
+    private static final TaskMediator mediator = new TaskManagerMediator();
 
     public static void main(String[] args) {
         taskManager = new TaskManagerProxy(false);
@@ -60,8 +61,12 @@ public class Main {
                 .setDueDate(dueDate)
                 .build();
 
+
         Command addTaskCommand = new AddTaskCommand(taskManager, task);
         addTaskCommand.execute();
+
+
+        mediator.addTask(title, description, priority, dueDate.toString());
     }
 
     private static LocalDate getDueDateFromUser() {
@@ -98,25 +103,39 @@ public class Main {
             out.println("Список задач:");
             tasks.forEach(out::println);
         }
+
+
+        mediator.showAllTasks();
     }
 
     private static void markTaskAsCompleted() {
         out.print("Введите ID задачи для завершения: ");
         int taskId = scanner.nextInt();
+
+
         Command markTaskAsCompletedCommand = new MarkTaskAsCompletedCommand(taskManager, taskId);
         markTaskAsCompletedCommand.execute();
+
+
+        mediator.markTaskAsCompleted(taskId);
     }
 
     private static void deleteTask() {
         out.print("Введите ID задачи для удаления: ");
         int taskId = scanner.nextInt();
+
+
         Command deleteTaskCommand = new DeleteTaskCommand(taskManager, taskId);
         deleteTaskCommand.execute();
+
+
+        mediator.deleteTask(taskId);
     }
 
     private static void copyTask() {
         out.print("Введите ID задачи для копирования: ");
         int taskId = scanner.nextInt();
+
         Task task = taskManager.getTaskById(taskId);
         if (task != null) {
             Task clone = task.copy();
@@ -125,7 +144,11 @@ public class Main {
         } else {
             out.println("Задача с таким ID не найдена.");
         }
+
+
+        mediator.copyTask(taskId);
     }
+
     private static void iterateTasks() {
         TaskIterator iterator = taskManager.getIterator();
         if (!iterator.hasNext()) {
