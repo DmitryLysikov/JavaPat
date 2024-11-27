@@ -10,4 +10,6 @@ public interface TaskManagerInterface {
     Task getTaskById(int id);
     List<Task> getTasksByPriority();
     TaskIterator getIterator();
+    TaskManagerMemento save();
+    void restore(TaskManagerMemento memento);
 }

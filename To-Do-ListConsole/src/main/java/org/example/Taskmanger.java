@@ -9,7 +9,7 @@ public class Taskmanger implements TaskManagerInterface {
     private static final Taskmanger instance = new Taskmanger();
     private final List<Task> tasks = new ArrayList<>();
 
-    private Taskmanger() {}
+    public Taskmanger() {}
 
     public static Taskmanger getInstance() {
         return instance;
@@ -56,5 +56,16 @@ public class Taskmanger implements TaskManagerInterface {
     @Override
     public TaskIterator getIterator() {
         return new TaskListIterator(getAllTasks());
+    }
+
+    @Override
+    public TaskManagerMemento save() {
+        return new TaskManagerMemento(tasks);
+    }
+
+    @Override
+    public void restore(TaskManagerMemento memento) {
+        tasks.clear();
+        tasks.addAll(memento.getSavedTasks());
     }
 }

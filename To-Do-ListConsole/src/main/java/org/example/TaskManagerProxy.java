@@ -1,7 +1,7 @@
 package org.example;
 
 import java.util.List;
-//Proxy паттерн
+//Proxy паттерн и Memento
 public class TaskManagerProxy implements TaskManagerInterface {
     private final Taskmanger taskManager;
     private final boolean isAdmin;
@@ -49,5 +49,15 @@ public class TaskManagerProxy implements TaskManagerInterface {
     @Override
     public TaskIterator getIterator() {
         return new TaskListIterator(getAllTasks());
+    }
+
+    @Override
+    public TaskManagerMemento save() {
+        return taskManager.save();
+    }
+
+    @Override
+    public void restore(TaskManagerMemento memento) {
+        taskManager.restore(memento);
     }
 }

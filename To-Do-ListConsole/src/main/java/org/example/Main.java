@@ -8,12 +8,13 @@ import java.util.Scanner;
 import static java.lang.System.*;
 
 public class Main {
-    private static TaskManagerInterface taskManager;
+    private static Taskmanger taskManager;
     private static final Scanner scanner = new Scanner(in);
+    private static final TaskManagerCaretaker caretaker = new TaskManagerCaretaker();
     private static final TaskMediator mediator = new TaskManagerMediator();
 
     public static void main(String[] args) {
-        taskManager = new TaskManagerProxy(false);
+        taskManager = new Taskmanger();
         while (true) {
             out.println("\nМеню:");
             out.println("1. Добавить задачу");
@@ -21,8 +22,10 @@ public class Main {
             out.println("3. Отметить задачу как выполненную");
             out.println("4. Удалить задачу");
             out.println("5. Копировать задачу");
-            out.println("6. Выход");
-            out.println("7. Итерация по задачам");
+            out.println("6. Сохранить состояние");
+            out.println("7. Восстановить состояние");
+            out.println("8. Итерация по задачам");
+            out.println("9. Выход");
             out.print("Выберите пункт: ");
 
             int choice = scanner.nextInt();
@@ -32,11 +35,13 @@ public class Main {
                 case 3 -> markTaskAsCompleted();
                 case 4 -> deleteTask();
                 case 5 -> copyTask();
-                case 6 -> {
+                case 6 -> saveState();
+                case 7 -> restoreState();
+                case 8 -> iterateTasks();
+                case 9 -> {
                     out.println("Выход");
                     return;
                 }
-                case 7 -> iterateTasks();
                 default -> out.println("Неверный выбор!");
             }
         }
@@ -159,5 +164,15 @@ public class Main {
         while (iterator.hasNext()) {
             out.println(iterator.next());
         }
+    }
+
+    private static void saveState() {
+        caretaker.saveState(taskManager);
+        out.println("Состояние сохранено.");
+    }
+
+    private static void restoreState() {
+        caretaker.restoreState(taskManager);
+        out.println("Состояние восстановлено.");
     }
 }
