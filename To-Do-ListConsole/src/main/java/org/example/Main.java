@@ -26,6 +26,7 @@ public class Main {
             out.println("7. Восстановить состояние");
             out.println("8. Итерация по задачам");
             out.println("9. Выход");
+            out.println("10. Смена состояния");
             out.print("Выберите пункт: ");
 
             int choice = scanner.nextInt();
@@ -42,6 +43,7 @@ public class Main {
                     out.println("Выход");
                     return;
                 }
+                case 10 -> changeTaskState();
                 default -> out.println("Неверный выбор!");
             }
         }
@@ -174,5 +176,26 @@ public class Main {
     private static void restoreState() {
         caretaker.restoreState(taskManager);
         out.println("Состояние восстановлено.");
+    }
+
+    private static void changeTaskState() {
+        out.print("Введите ID задачи для изменения состояния: ");
+        int taskId = scanner.nextInt();
+        Task task = taskManager.getTaskById(taskId);
+
+        if (task != null) {
+            TaskContext taskContext = new TaskContext();
+            out.println("1. Перевести в процесс выполнения");
+            out.println("2. Завершить задачу");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1 -> taskContext.markInProgress();
+                case 2 -> taskContext.markCompleted();
+                default -> out.println("Неверный выбор.");
+            }
+        } else {
+            out.println("Задача с таким ID не найдена.");
+        }
     }
 }
