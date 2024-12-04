@@ -27,6 +27,7 @@ public class Main {
             out.println("8. Итерация по задачам");
             out.println("9. Выход");
             out.println("10. Смена состояния");
+            out.println("11. Сортировать задачи");
             out.print("Выберите пункт: ");
 
             int choice = scanner.nextInt();
@@ -44,6 +45,7 @@ public class Main {
                     return;
                 }
                 case 10 -> changeTaskState();
+                case 11 -> sortTasks();
                 default -> out.println("Неверный выбор!");
             }
         }
@@ -198,4 +200,32 @@ public class Main {
             out.println("Задача с таким ID не найдена.");
         }
     }
+
+    private static void sortTasks() {
+        TaskSorter sorter = new TaskSorter();
+        out.println("Выберите метод сортировки:");
+        out.println("1. По дате");
+        out.println("2. По приоритету");
+        out.println("3. По заголовку");
+        int choice = scanner.nextInt();
+
+        switch (choice) {
+            case 1 -> sorter.setStrategy(new SortByDateStrategy());
+            case 2 -> sorter.setStrategy(new SortByPriorityStrategy());
+            case 3 -> sorter.setStrategy(new SortByTitleStrategy());
+            default -> {
+                out.println("Неверный выбор!");
+                return;
+            }
+        }
+
+        List<Task> sortedTasks = sorter.sortTasks(taskManager.getTasksByPriority());
+        if (sortedTasks.isEmpty()) {
+            out.println("Нет задач для сортировки.");
+        } else {
+            out.println("Отсортированные задачи:");
+            sortedTasks.forEach(out::println);
+        }
+    }
+
 }
