@@ -25,9 +25,10 @@ public class Main {
             out.println("6. Сохранить состояние");
             out.println("7. Восстановить состояние");
             out.println("8. Итерация по задачам");
-            out.println("9. Выход");
-            out.println("10. Смена состояния");
-            out.println("11. Сортировать задачи");
+            out.println("9. Смена состояния задачи");
+            out.println("10. Сортировать задачи");
+            out.println("11. Шаблонный метод для операций");
+            out.println("12. Выход");
             out.print("Выберите пункт: ");
 
             int choice = scanner.nextInt();
@@ -40,12 +41,13 @@ public class Main {
                 case 6 -> saveState();
                 case 7 -> restoreState();
                 case 8 -> iterateTasks();
-                case 9 -> {
+                case 9 -> changeTaskState();
+                case 10 -> sortTasks();
+                case 11 -> performTemplateMethod();
+                case 12 -> {
                     out.println("Выход");
                     return;
                 }
-                case 10 -> changeTaskState();
-                case 11 -> sortTasks();
                 default -> out.println("Неверный выбор!");
             }
         }
@@ -70,38 +72,10 @@ public class Main {
                 .setDueDate(dueDate)
                 .build();
 
-
-        Command addTaskCommand = new AddTaskCommand(taskManager, task);
-        addTaskCommand.execute();
-
+        TaskTemplate addTaskTemplate = new AddTaskTemplate(taskManager, task);
+        addTaskTemplate.executeTaskAction();
 
         mediator.addTask(title, description, priority, dueDate.toString());
-    }
-
-    private static LocalDate getDueDateFromUser() {
-        LocalDate dueDate = null;
-        while (dueDate == null) {
-            out.print("Введите срок выполнения задачи (гггг-мм-дд): ");
-            String dateInput = scanner.nextLine();
-            try {
-                dueDate = LocalDate.parse(dateInput);
-            } catch (DateTimeParseException e) {
-                out.println("Неверный формат даты. Попробуйте снова.");
-            }
-        }
-        return dueDate;
-    }
-
-    private static int getValidatedPriority() {
-        int priority = -1;
-        while (priority < 1 || priority > 5) {
-            while (!scanner.hasNextInt()) {
-                out.print("Введите приоритет от 1 до 5: ");
-                scanner.next();
-            }
-            priority = scanner.nextInt();
-        }
-        return priority;
     }
 
     private static void showTasks() {
@@ -112,8 +86,6 @@ public class Main {
             out.println("Список задач:");
             tasks.forEach(out::println);
         }
-
-
         mediator.showAllTasks();
     }
 
@@ -121,10 +93,8 @@ public class Main {
         out.print("Введите ID задачи для завершения: ");
         int taskId = scanner.nextInt();
 
-
-        Command markTaskAsCompletedCommand = new MarkTaskAsCompletedCommand(taskManager, taskId);
-        markTaskAsCompletedCommand.execute();
-
+        TaskTemplate markCompletedTemplate = new MarkTaskAsCompletedTemplate(taskManager, taskId);
+        markCompletedTemplate.executeTaskAction();
 
         mediator.markTaskAsCompleted(taskId);
     }
@@ -133,10 +103,8 @@ public class Main {
         out.print("Введите ID задачи для удаления: ");
         int taskId = scanner.nextInt();
 
-
-        Command deleteTaskCommand = new DeleteTaskCommand(taskManager, taskId);
-        deleteTaskCommand.execute();
-
+        TaskTemplate deleteTaskTemplate = new DeleteTaskTemplate(taskManager, taskId);
+        deleteTaskTemplate.executeTaskAction();
 
         mediator.deleteTask(taskId);
     }
@@ -153,8 +121,6 @@ public class Main {
         } else {
             out.println("Задача с таким ID не найдена.");
         }
-
-
         mediator.copyTask(taskId);
     }
 
@@ -228,4 +194,43 @@ public class Main {
         }
     }
 
+    private static void performTemplateMethod() {
+        out.println("Выберите действие:");
+        out.println("1. Добавить задачу");
+        out.println("2. Удалить задачу");
+        int choice = scanner.nextInt();
+
+        switch (choice) {
+            case 1 -> addTask();
+            case 2 -> deleteTask();
+            default -> out.println("Неверный выбор!");
+        }
+    }
+
+    private static LocalDate getDueDateFromUser() {
+        LocalDate dueDate = null;
+        while (dueDate == null) {
+            out.print("Введите срок выполнения задачи (гггг-мм-дд): ");
+            String dateInput = scanner.next();
+            try {
+                dueDate = LocalDate.parse(dateInput);
+            } catch (DateTimeParseException e) {
+                out.println("Неверный формат даты. Попробуйте снова.");
+            }
+        }
+        return dueDate;
+    }
+
+    private static int getValidatedPriority() {
+        int priority;
+        do {
+            out.print("Введите приоритет от 1 до 5: ");
+            while (!scanner.hasNextInt()) {
+                out.print("Введите число от 1 до 5: ");
+                scanner.next();
+            }
+            priority = scanner.nextInt();
+        } while (priority < 1 || priority > 5);
+        return priority;
+    }
 }
